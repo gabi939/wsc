@@ -1,0 +1,24 @@
+eventhub:
+    connection_string: endpoint
+    eventhub_name: careers-data
+    
+storage:
+    connection_string: endpoint
+
+producer:
+  scrapper:
+    scrape_timeout: 60  
+    scrape_rate_limit: 20
+    scrape_url: https://wsc-sports.com/Careers/
+
+consumer:
+  base_url: https://wsc-sports.com/career/
+  bucket: careers
+  scrapper:
+    scrape_timeout: 30
+    scrape_rate_limit: 1
+  consumer_details:
+    consumer_group: $Default
+    max_events: 1
+    max_wait_time: 5
+    
