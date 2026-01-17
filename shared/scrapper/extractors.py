@@ -263,15 +263,19 @@ def extract_positions(html: str) -> list[dict[str, str]]:
     """Extract position information from HTML content."""
     soup = BeautifulSoup(html, "html.parser")
     positions = []
-    job_elements = []
 
     response_jobs_div = soup.find("div", id="response_jobs")
 
     if response_jobs_div:
-        job_elements = response_jobs_div.find_all("span", class_="link-text")
+        job_links = response_jobs_div.find_all("a")
 
-    for i, element in enumerate(job_elements):
-        title = element.get_text(strip=True)
-        positions.append({"position_title": title, "index": f"{i}"})
+        for i, link in enumerate(job_links):
+            title_element = link.find("span", class_="link-text")
+            if title_element:
+                title = title_element.get_text(strip=True)
+                url = link.get("href", "")
+                positions.append(
+                    {"position_title": title, "index": str(i), "job_url": url}
+                )
 
     return positions

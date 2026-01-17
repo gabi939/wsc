@@ -164,8 +164,6 @@ class Scrapper:
 
             if not data:
                 logger.warning(f"No data extracted from {url}")
-            else:
-                logger.info(f"Extracted {len(data)} items from {url}")
 
             return data
 

@@ -13,7 +13,6 @@ Example:
     >>> await publisher.run()
 """
 
-import asyncio
 import logging
 from typing import List, Dict
 from datetime import datetime

@@ -15,7 +15,7 @@ async def main():
     publisher = ScraperPublisher(
         **config["eventhub"],
         **config["producer"]["scrapper"],
-        schema={"position_title": "string", "index": "string"},
+        schema={"position_title": "string", "index": "string", "job_url": "string"},
     )
     await publisher.run()
 

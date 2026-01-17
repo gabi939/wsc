@@ -1,6 +1,5 @@
 from azure.eventhub import EventHubConsumerClient, EventData, PartitionContext
 import logging
-from types import List
 
 
 logger = logging.getLogger(__name__)
@@ -72,7 +71,7 @@ class EventsConsumer:
         )
 
     def _consume_callback(
-        self, context: PartitionContext, events: List[EventData]
+        self, context: PartitionContext, events: list[EventData]
     ) -> None:
         """
         Callback function invoked for each batch of events.
@@ -92,14 +91,12 @@ class EventsConsumer:
             self.collected_data.append(event_body)
             logger.debug(f"Collected event ({len(event_body)} bytes)")
 
-        logger.info(f"Total collected: {len(self.collected_data)} events")
-
         # Close client when we've reached our goal
         if len(self.collected_data) >= self._max_events:
             logger.info(f"Reached max_events ({self._max_events}), closing client")
             self._client.close()
 
-    def consume(self) -> List[bytes]:
+    def consume(self) -> list[bytes]:
         """
         Consume events from EventHub in batches.
 

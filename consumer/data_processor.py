@@ -99,12 +99,11 @@ class DataProcessor:
             positions_metadata = []
 
             for idx, event in enumerate(data):
-                position_title = event.get("position_title", "unknown")
-                url = f"{self._base_url}{position_title.lower().replace(' ', '-')}/"
+                url = event.get("job_url", None)
+                if not url:
+                    continue
 
-                logger.debug(
-                    f"Scraping position {idx + 1}/{len(data)}: {position_title} from {url}"
-                )
+                logger.debug(f"Scraping position {idx + 1}/{len(data)}: from {url}")
 
                 metadata = await self.scraper.scrape(
                     url=url,
@@ -113,9 +112,9 @@ class DataProcessor:
 
                 if metadata:
                     positions_metadata.append(metadata)
-                    logger.debug(f"Successfully scraped metadata for {position_title}")
+                    logger.debug(f"Successfully scraped metadata for {url}")
                 else:
-                    logger.warning(f"No metadata extracted for {position_title}")
+                    logger.warning(f"No metadata extracted for {url}")
 
             logger.info(
                 f"Successfully scraped {len(positions_metadata)}/{len(data)} positions"
@@ -147,32 +146,29 @@ class DataProcessor:
             logger.info("Starting DataProcessor pipeline")
 
             batch_count = 0
-            for positions_parquet in self.consumer.consume():
-                batch_count += 1
-                logger.info(f"Processing batch {batch_count}")
+            while True:
+                for positions_parquet in self.consumer.consume():
+                    batch_count += 1
+                    logger.info(f"Processing batch {batch_count}")
 
-                logger.debug("Reading parquet data")
-                data = read_parquet(positions_parquet)
-                logger.info(f"Read {len(data)} position records from parquet")
+                    logger.debug("Reading parquet data")
+                    data = read_parquet(positions_parquet)
+                    logger.info(f"Read {len(data)} position records from parquet")
 
-                logger.debug("Scraping job information")
-                positions_metadata = await self._scrape_job_info(data)
+                    logger.debug("Scraping job information")
+                    metadata = await self._scrape_job_info(data)
 
-                file_id = uuid.uuid4()
-                logger.info(f"Uploading batch {batch_count} with file_id={file_id}")
+                    file_id = uuid.uuid4()
+                    logger.info(f"Uploading batch {batch_count} with file_id={file_id}")
 
-                self._storage_client.upload(
-                    data=positions_parquet,
-                    meta=positions_metadata,
-                    container_name=self._bucket,
-                    filename=str(file_id),
-                )
+                    self._storage_client.upload(
+                        data=data,
+                        meta=metadata,
+                        container_name=self._bucket,
+                        filename=str(file_id),
+                    )
 
-                logger.info(f"Batch {batch_count} uploaded successfully")
-
-            logger.info(
-                f"DataProcessor pipeline completed successfully. Processed {batch_count} batches"
-            )
+                    logger.info(f"Batch {batch_count} uploaded successfully")
 
         except Exception as e:
             logger.error(f"DataProcessor pipeline failed: {e}", exc_info=True)

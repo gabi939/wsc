@@ -52,7 +52,7 @@ class StorageClient:
             raise
 
     def upload(
-        self, data: bytes, meta: dict, container_name: str, filename: str
+        self, data: list, meta: list, container_name: str, filename: str
     ) -> None:
         """
         Upload data and metadata to Azure Blob Storage.
@@ -83,7 +83,7 @@ class StorageClient:
             blob_client = self.client.get_blob_client(
                 container=container_name, blob=data_blob_name
             )
-            blob_client.upload_blob(data, overwrite=True)
+            blob_client.upload_blob(json.dumps(data), overwrite=True)
             logger.info(f"Data blob uploaded: {data_blob_name}")
 
             # Upload metadata

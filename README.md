@@ -65,10 +65,9 @@ A distributed job scraping and processing pipeline built with Azure services.
 
 ### 1. Job Title to URL Mapping
 
-**Problem**: The scraping of full job descriptions doesn't work perfectly due to inconsistent job title formatting.
+**Problem**: Did a workaround by extracting job description url in the initial consuming level
 
 **Details**:
-- No 1-to-1 mapping between job titles and their URLs
 - Slight variations in job title names cause lookup errors
 - Example: "Software Engineer" vs "Software Engineer - Backend" may reference the same or different positions
 
